@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/frontend\" && \\\\\n  rm -f src/App.jsx src/main.jsx \\\\\n        src/components/CodeEditor.jsx \\\\\n        src/components/OutputPanel.jsx \\\\\n        src/components/RoomHeader.jsx \\\\\n        src/components/Toolbar.jsx \\\\\n        src/components/UserList.jsx \\\\\n        src/styles/cursor.css \\\\\n        src/styles/editor.css \\\\\n        src/styles/layout.css \\\\\n        vite.config.js && \\\\\n  echo \"Cleaned up old JSX/CSS files\")",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/frontend\" && npm install 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/backend/cursor-websocket\" && npm install 2>&1 | tail -5)",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/frontend\" && npx tsc -b 2>&1)",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/frontend\" && npm install monaco-editor 2>&1 | tail -3)",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/backend/cursor-websocket\" && npm run build 2>&1)",
+      "Bash(cd \"C:/Users/DEBANGA DEKA/codecollab/frontend\" && npm run build 2>&1 | tail -20)"
+    ]
+  }
+}
