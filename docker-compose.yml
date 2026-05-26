@@ -32,6 +32,16 @@ services:
       timeout: 3s
       retries: 10
 
+  # ── Piston code execution engine ──────────────────────────────────────────
+  piston:
+    image: ghcr.io/engineer-man/piston
+    container_name: codecollab-piston
+    privileged: true
+    ports:
+      - "2000:2000"
+    volumes:
+      - piston-data:/piston
+
   # ── Spring Boot REST API ───────────────────────────────────────────────────
   spring-boot:
     build:
@@ -47,6 +57,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: "6379"
       cors.allowed-origins: "http://localhost:5174,http://localhost:3000"
+      PISTON_API_URL: "http://piston:2000/api/v2/execute"
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,3 +93,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  piston-data:

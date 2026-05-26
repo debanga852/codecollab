@@ -1,5 +1,6 @@
 package com.codecollab.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -9,11 +10,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:5174", "http://localhost:5173"}, allowCredentials = "true", allowedHeaders = "*")
+@CrossOrigin(origins = {"http://localhost:5174", "http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true", allowedHeaders = "*")
 public class RunController {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private static final String PISTON_API_URL = "https://emkc.org/api/v2/piston/execute";
+
+    @Value("${PISTON_API_URL:http://piston:2000/api/v2/execute}")
+    private String PISTON_API_URL;
 
     @PostMapping("/run")
     public ResponseEntity<?> executeCode(@RequestBody Map<String, Object> request) {
@@ -72,26 +75,35 @@ public class RunController {
             
             // Prepare request for Piston API
             Map<String, Object> pistonRequest = new HashMap<>();
-            pistonRequest.put("language", language);
-            
-            // Set correct version based on language
+
+            // Map frontend language names to Piston language names and versions
+            String pistonLanguage = language;
             String version = "*";
+            String filename = "script";
             if ("javascript".equals(language)) {
+                pistonLanguage = "javascript";
                 version = "18.15.0";
+                filename = "script.js";
             } else if ("python".equals(language)) {
+                pistonLanguage = "python";
                 version = "3.10.0";
+                filename = "script.py";
+            } else if ("typescript".equals(language)) {
+                pistonLanguage = "typescript";
+                filename = "script.ts";
+            } else if ("java".equals(language)) {
+                pistonLanguage = "java";
+                filename = "Main.java";
+            } else if ("cpp".equals(language) || "c++".equals(language)) {
+                pistonLanguage = "c++";
+                filename = "script.cpp";
             }
+            pistonRequest.put("language", pistonLanguage);
             pistonRequest.put("version", version);
-            
+
             // Create files array in the format Piston expects
             List<Map<String, String>> pistonFiles = new ArrayList<>();
             Map<String, String> fileMap = new HashMap<>();
-            
-            // Set appropriate filename based on language
-            String filename = "script.js";
-            if ("python".equals(language)) {
-                filename = "script.py";
-            }
             
             fileMap.put("name", filename);
             fileMap.put("content", code);
@@ -124,7 +136,7 @@ public class RunController {
             
             // Return successful response with CORS headers
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:5174");
+            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:3000");
             responseHeaders.set("Access-Control-Allow-Credentials", "true");
             responseHeaders.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
             responseHeaders.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -141,7 +153,7 @@ public class RunController {
             errorResponse.put("message", e.getMessage());
             
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:5174");
+            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:3000");
             responseHeaders.set("Access-Control-Allow-Credentials", "true");
             
             return new ResponseEntity<>(errorResponse, responseHeaders, e.getStatusCode());
@@ -155,7 +167,7 @@ public class RunController {
             errorResponse.put("message", e.getMessage());
             
             HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:5174");
+            responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:3000");
             responseHeaders.set("Access-Control-Allow-Credentials", "true");
             
             return new ResponseEntity<>(errorResponse, responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -170,7 +182,7 @@ public class RunController {
         response.put("timestamp", new Date().toString());
         
         HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:5174");
+        responseHeaders.set("Access-Control-Allow-Origin", "http://localhost:3000");
         responseHeaders.set("Access-Control-Allow-Credentials", "true");
         
         return new ResponseEntity<>(response, responseHeaders, HttpStatus.OK);
@@ -180,7 +192,7 @@ public class RunController {
     @RequestMapping(value = "/run", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handleRunOptions() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "http://localhost:5174");
+        headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
         headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
         headers.set("Access-Control-Allow-Credentials", "true");
@@ -192,7 +204,7 @@ public class RunController {
     @RequestMapping(value = "/test", method = RequestMethod.OPTIONS)
     public ResponseEntity<?> handleTestOptions() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Access-Control-Allow-Origin", "http://localhost:5174");
+        headers.set("Access-Control-Allow-Origin", "http://localhost:3000");
         headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
         headers.set("Access-Control-Allow-Headers", "Content-Type");
         headers.set("Access-Control-Allow-Credentials", "true");
